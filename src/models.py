@@ -3,58 +3,61 @@ import enum
 
 db = SQLAlchemy()
 
-class TipoUsuario(enum.Enum):
-    ORGANIZACION = "organizacion"
+class UserType(enum.Enum):
+    ORGANIZATION = "organization"
     PARTICULAR = "particular"
-    CORPORATIVO = "corporativo"
+    BUSINESS = "business"
 
-class TipoAyuda(enum.Enum):
-    DINERO = "dinero"
-    INSUMOS = "insumos"
-    TRANSPORTE = "transporte"
-    PARTICIPACION = "participacion"
+class HelpType(enum.Enum):
+    MONEY = "money"
+    SUPPLIES = "supplies"
+    TRANSPORT = "transport"
+    PARTICIPATION = "participation"
 
-class StatusColaboracion(enum.Enum):
-    ENVIADA = "enviada"
-    PROCESO = "proceso"
-    RECIBIDA = "recibida"
+class ColaborationStatus(enum.Enum):
+    SEND = "send"
+    ONGOING = "ongoing"
+    RECEIVED = "received"
     FAIL = "fail"
 
-class TipoOrg(enum.Enum):
-    CASAHOGAR = "casahogar"
-    ANCIANATO = "ancianato"
-    OTRAS = "otras"
+class Organization_Type(enum.Enum):
+    CHILDREN = "children"
+    ELDERLY = "elderly"
+    OTHERS = "others"
 
-# Clases
+# Classes
 class Login(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=True, nullable=False)
-    user_type = db.Column(db.Enum(TipoUsuario), nullable=False)
-    colaboradores = db.relationship('Colaborador', backref='colaborador', uselist=True)
-    organizaciones = db.relationship('Organizacion', backref='organizacion', uselist=True)
-    destacados = db.relationship('Destacado', backref='destacado', uselist=True)
+    user_type = db.Column(db.Enum(UserType), nullable=False)
+    
+    collaborators = db.relationship('Collaborator', backref='login', uselist=True)
+    organizations = db.relationship('Organization', backref='login', uselist=True)
+    favorites = db.relationship('Favorite', backref='login', uselist=True)
 
     def __repr__(self):
-        return '<Login %r>' % self.username
+        return '<Login %r>' % self.user_name
 
     def serialize(self):
         return {
             "user_name": self.user_name,
             "email": self.email,
-            "user_type": self.usertype
+            "user_type": self.user_type
         }
 
-class Colaborador(db.Model):
+class Collaborator(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     phone = db.Column(db.String(100), nullable=False)
     anonymus = db.Column(db.Boolean, nullable=False)
+    
     login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False)
-    colaboraciones = db.relationship('Colaboracion', backref='colaborador', uselist=True)
+    
+    aids = db.relationship('Aid', backref='collaborator', uselist=True)
 
     def __repr__(self):
-        return '<Colaborador %r>' % self.username
+        return '<Collaborator %r>' % self.collaborator
 
     def serialize(self):
         return {
@@ -62,63 +65,68 @@ class Colaborador(db.Model):
             "anonymus": self.anonymus
         }
 
-class Organizacion(db.Model):
+class Organization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    org_name = db.Column(db.String(200), unique=True, nullable=False)
+    organization_name = db.Column(db.String(200), unique=True, nullable=False)
     rif = db.Column(db.String(100), unique=True, nullable=False)
     phone = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(200), nullable=False)
-    person = db.Column(db.String(200), unique=True, nullable=False)
+    person_oncharge = db.Column(db.String(200), unique=True, nullable=False)
     status = db.Column(db.Boolean, nullable=False)
-    login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False)
-    colaboraciones = db.relationship('Colaboracion', backref='colaboracion', uselist=True)
-    datosbancos = db.relationship('DatosBanco', backref='datosbanco', uselist=True)
-    org_type = db.Column(db.Enum(TipoOrg), nullable=False)
+    
+    login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False) #Relacion con la tabla Login
+
+    aids = db.relationship('Aid', backref='organization', uselist=True) #Relacion con la tabla Colaboracion
+    bank_data = db.relationship('BankData', backref='organization', uselist=True) #Relacion con la tabla DatosBanco
+    
+    organization_type = db.Column(db.Enum(Organization_Type), nullable=False)
     
 
     def __repr__(self):
-        return '<Organizacion %r>' % self.organizacion
+        return '<Organization %r>' % self.organization
 
     def serialize(self): 
         return {
-            "org_name": self.org_name,
+            "organization_name": self.organization_name,
             "rif": self.rif,
             "phone": self.phone,
             "address": self.address,
-            "person": self.person,
+            "person_oncharge": self.person_oncharge,
             "status": self.status
         }
 
-class DatosBanco(db.Model):  #SE PUEDE PONER NULLABLE=TRUE EN LOS DATOS EN CASO DE QUE NO TENGAN ESA INFO O ESA CUENTA
+class BankData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Bancos nacionales (transferencia y pago movil)
-    nombre_banco = db.Column(db.String(100), nullable=False) #****SE PUEDE HACER UN DROPDOWN ******
-    num_cuenta = db.Column(db.String(20), nullable=False)
+    bank_name_national = db.Column(db.String(100), nullable=False) #****SE PUEDE HACER UN DROPDOWN ******
+    account_number_national = db.Column(db.String(20), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
     # Zelle
     name_zelle = db.Column(db.String(200), unique=True, nullable=False)
     email_zelle = db.Column(db.String(200), unique=True, nullable=False)
     #Bancos internacionales (transferencias)
-    bank_name = db.Column(db.String(200), unique=True, nullable=False) #*******SE PUEDE HACER UN DROPDOWN*******
-    account_number = db.Column(db.String(100), nullable=False)
+    bank_name_international = db.Column(db.String(200), unique=True, nullable=False) #*******SE PUEDE HACER UN DROPDOWN*******
+    account_number_international = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     swift = db.Column(db.String(100), nullable=False)
     abba = db.Column(db.String(100), nullable=False)
     address = db.Column(db.String(100), nullable=False)
-    org_id = db.Column(db.Integer, db.ForeignKey('organizacion.id'), unique=True, nullable=False)
+    
+    org_id = db.Column(db.Integer, db.ForeignKey('organization.id'), unique=True, nullable=False)
 
     def __repr__(self):
-        return '<DatosBanco %r>' % self.DatosBanco
+        return '<BankData %r>' % self.bankData
 
     def serialize(self):
         return {
-            "nombre_banco": self.nombre_banco,
-            "num_cuenta": self.num_cuenta,
+            "bank_name_national": self.bank_name_national,
+            "account_number_national": self.account_number_national,
             "phone": self.phone,
             "name_zelle": self.name_zelle,
             "email_zelle": self.email_zelle,
-            "bank_name": self.bank_name,
+            "bank_name_international": self.bank_name_international,
+            "account_number_international": self.account_number_international,
             "name": self.name,
             "email": self.email,
             "swift": self.swift,
@@ -126,38 +134,34 @@ class DatosBanco(db.Model):  #SE PUEDE PONER NULLABLE=TRUE EN LOS DATOS EN CASO 
             "address": self.address
         }
 
-class Colaboracion(db.Model):
+class Aid(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    colaborador = db.Column(db.String(200), unique=True, nullable=False)
-    colab_id = db.Column(db.Integer, db.ForeignKey('colaborador.id'), unique=True, nullable=False)
-    organizacion = db.Column(db.String(200), unique=True, nullable=False)
-    org_id = db.Column(db.Integer, db.ForeignKey('organizacion.id'), unique=True, nullable=False)
-    help_type = db.Column(db.Enum(TipoAyuda), nullable=False)
-    help_status = db.Column(db.Enum(StatusColaboracion), nullable=False)
+    collaborator_id = db.Column(db.Integer, db.ForeignKey('collaborator.id'), unique=True, nullable=False)
+    organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'), unique=True, nullable=False)
+    help_type = db.Column(db.Enum(HelpType), nullable=False)
+    help_status = db.Column(db.Enum(ColaborationStatus), nullable=False)
 
     def __repr__(self):
-        return '<Colaboracion %r>' % self.username
+        return '<Aid %r>' % self.aid
 
-    def serialize(self): 
-        return {
-            "colaborador": self.colaborador,
-            "organizacion": self.organizacion
-        }
+    # def serialize(self): 
+    #     return {
+    #         "collaborator": self.collaborator,
+    #         "organization": self.organization
+    #     }
 
-class Destacado(db.Model):
+class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    colaborador = db.Column(db.String(200), unique=True, nullable=False) #Esto deberia dejarme elegir de los colab existentes en un dropdowm
-    colab_id = db.Column(db.Integer, unique=True, nullable=False)
-    organizacion = db.Column(db.String(200), unique=True, nullable=False) #Esto deberia dejarme elegir de las org existentes en un dropdowm
-    org_id = db.Column(db.Integer, unique=True, nullable=False)
+    collaborator_id = db.Column(db.Integer, unique=True, nullable=False)
+    organization_id = db.Column(db.Integer, unique=True, nullable=False)
     #interacion = db.Column()
     login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False)
 
     def __repr__(self):
-        return '<Destacado %r>' % self.destacado
+        return '<Favorite %r>' % self.favorite
 
-    def serialize(self): 
-        return {
-            "colaborador": self.colaborador,
-            "organizacion": self.organizacion
-        }
+    # def serialize(self): 
+    #     return {
+    #         "collaborator": self.collaborator,
+    #         "organization": self.organization
+    #     }

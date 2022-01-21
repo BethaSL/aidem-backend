@@ -2,13 +2,14 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
+import json
 from flask import Flask, request, jsonify, url_for
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db
+from models import db, Login, Collaborator, Organization, BankData, Aid, Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -25,10 +26,51 @@ setup_admin(app)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
-@app.route('/organizaciones')
-def orgs():
-  return 'Organizaciones'
+
+@app.route('/organizations/', methods=['GET'])
+def handle_organizations():
+    all_organizations = Organization.query.all()
+    all_serialize = []
+    for organization in all_organizations:
+        all_serialize.append(organization.serialize())
+    response_body = {
+        'status': 'ok',
+        'organizations': all_serialize
+    }
+    return (response_body) , 200
+
+
+@app.route('/organizations/<string:organization_type>', methods=['GET'])
+def handle_organization(organization_type):
+    if organization_type == "children":
+        children_organizations = Organization.query.filter_by(organization_type = organization_type).all()
+        children_serialize = []
+        for children_organization in children_organizations:
+            children_serialize.append(children_organization.serialize())
+        response_body = {
+            'status': 'ok',
+            'children_organization': children_serialize
+        }
+    elif organization_type == "elderly":
+        elderly_organizations = Organization.query.filter_by(organization_type = organization_type).all()
+        elderly_serialize = []
+        for elderly_organization in elderly_organizations:
+            elderly_serialize.append(elderly_organization.serialize())
+        response_body = {
+            'status': 'ok',
+            'elderly_organization': elderly_serialize
+        }
+    else:
+        others_organizations = Organization.query.filter_by(organization_type = organization_type).all()
+        others_serialize = []
+        for others_organization in others_organizations:
+            others_serialize.append(others_organization.serialize())
+        response_body = {
+            'status': 'ok',
+            'others_organization': others_serialize
+        } 
+    return (response_body) , 200
+
 
 @app.route('/organizaciones/<int:org_id>', methods=['PUT', 'GET'])
 def org(id):
@@ -41,18 +83,6 @@ def nosotros():
 @app.route('/colaboracion', methods=['PUT', 'GET'])
 def colab():
     return 'Menu de colaboraciones'
-
-@app.route('/casashogar', methods=['GET'])
-def casahogar():
-    return 'Casas Hogares'
-
-@app.route('/ancianatos', methods=['GET'])
-def ancianato():
-    return 'Ancianatos'
-
-@app.route('/otras', methods=['GET'])
-def otrasOrg():
-    return 'Otras Organizaciones'
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
