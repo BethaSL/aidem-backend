@@ -10,7 +10,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from flask_jwt_extended import JWTManager
-from models import db, Login, Collaborator, Organization, BankData, Aid, Favorite
+from models import db, User, Collaborator, Organization, BankData, Aid, Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -33,15 +33,16 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-@app.route("/login", methods=["POST"])
+@app.route("/signup", methods=["POST"])
 def handle_login():
+
     if request.method == "POST":
         body = request.json
-        new_user = Login.create(body)
+        new_user = User.create(body)
         if new_user is not None:
             return jsonify(new_user.serialize()), 201
         else:
-            return jsonify({"message": "try again"}), 401
+            return jsonify({"message": "Please, fill all the fields"}), 401
 
     return jsonify({"message": "User not created"}), 405
 

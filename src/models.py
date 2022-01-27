@@ -26,16 +26,16 @@ class Organization_Type(enum.Enum):
     OTHERS = "others"
 
 # Classes
-class Login(db.Model):
+class User(db.Model): #***Esta clase es el Usuario***
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     user_type = db.Column(db.Enum(UserType), nullable=False)
     
-    collaborators = db.relationship('Collaborator', backref='login', uselist=True)
-    organizations = db.relationship('Organization', backref='login', uselist=True)
-    favorites = db.relationship('Favorite', backref='login', uselist=True)
+    collaborators = db.relationship('Collaborator', backref='user', uselist=True)
+    organizations = db.relationship('Organization', backref='user', uselist=True)
+    favorites = db.relationship('Favorite', backref='user', uselist=True)
 
     @classmethod
     def create(cls, new_user):
@@ -54,7 +54,7 @@ class Login(db.Model):
         return {
             "user_name": self.user_name,
             "email": self.email,
-            "user_type": self.user_type,
+            "user_type": self.user_type.value
         }
 
 class Collaborator(db.Model):
@@ -62,7 +62,7 @@ class Collaborator(db.Model):
     phone = db.Column(db.String(100), nullable=False)
     anonymus = db.Column(db.Boolean, nullable=False)
     
-    login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False)
+    user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
     
     aids = db.relationship('Aid', backref='collaborator', uselist=True)
 
@@ -84,7 +84,7 @@ class Organization(db.Model):
     person_oncharge = db.Column(db.String(200), unique=True, nullable=False)
     status = db.Column(db.Boolean, nullable=False)
     
-    login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False) #Relacion con la tabla Login
+    user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False) #Relacion con la tabla User
 
     aids = db.relationship('Aid', backref='organization', uselist=True) #Relacion con la tabla Colaboracion
     bank_data = db.relationship('BankData', backref='organization', uselist=True) #Relacion con la tabla DatosBanco
@@ -165,7 +165,7 @@ class Favorite(db.Model):
     collaborator_id = db.Column(db.Integer, unique=True, nullable=False)
     organization_id = db.Column(db.Integer, unique=True, nullable=False)
     #interacion = db.Column()
-    login_info = db.Column(db.Integer, db.ForeignKey('login.id'), unique=True, nullable=False)
+    user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
 
     def __repr__(self):
         return '<Favorite %r>' % self.favorite
