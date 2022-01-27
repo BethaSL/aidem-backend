@@ -9,6 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
+from flask_jwt_extended import JWTManager
 from models import db, Login, Collaborator, Organization, BankData, Aid, Favorite
 #from models import Person
 
@@ -16,6 +17,8 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_CONNECTION_STRING')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = os.environ.get('FLASK_APP_KEY')
+jwt = JWTManager(app)
 MIGRATE = Migrate(app, db)
 db.init_app(app)
 CORS(app)
@@ -26,6 +29,21 @@ setup_admin(app)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
+@app.route('/')
+def sitemap():
+    return generate_sitemap(app)
+
+@app.route("/login", methods=["POST"])
+def handle_login():
+    if request.method == "POST":
+        body = request.json
+        new_user = Login.create(body)
+        if new_user is not None:
+            return jsonify(new_user.serialize()), 201
+        else:
+            return jsonify({"message": "try again"}), 401
+
+    return jsonify({"message": "User not created"}), 405
 
 @app.route('/organizations/', methods=['GET'])
 def handle_organizations():

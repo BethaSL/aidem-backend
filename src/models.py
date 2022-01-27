@@ -30,21 +30,31 @@ class Login(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(80), unique=False, nullable=False)
     user_type = db.Column(db.Enum(UserType), nullable=False)
     
     collaborators = db.relationship('Collaborator', backref='login', uselist=True)
     organizations = db.relationship('Organization', backref='login', uselist=True)
     favorites = db.relationship('Favorite', backref='login', uselist=True)
 
-    def __repr__(self):
-        return '<Login %r>' % self.user_name
+    @classmethod
+    def create(cls, new_user):
+        user = cls(**new_user)
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+            return user
+        except Exception as error:
+            db.session.rollback()
+            print(error)
+            return None
 
     def serialize(self):
         return {
             "user_name": self.user_name,
             "email": self.email,
-            "user_type": self.user_type
+            "user_type": self.user_type,
         }
 
 class Collaborator(db.Model):
