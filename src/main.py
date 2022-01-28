@@ -9,8 +9,8 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from flask_jwt_extended import JWTManager
-from models import db, User, Collaborator, Organization, BankData, Aid, Favorite
+from flask_jwt_extended import JWTManager, create_access_token
+from models import db, User, Aider, Organization, BankData, Aid, Favorite
 #from models import Person
 
 app = Flask(__name__)
@@ -45,6 +45,17 @@ def handle_login():
             return jsonify({"message": "Please, fill all the fields"}), 401
 
     return jsonify({"message": "User not created"}), 405
+
+@app.route('/signin', methods=['POST'])
+def handle_signin():
+    email=request.json.get("email", None)
+    password=request.json.get("password", None)
+    user = User.query.filter_by(email=email, password=password).one_or_none()
+    if user is not None:
+        token = create_access_token(identity = user.id)
+        return jsonify({"token": token, "user_id": user.id}), 200
+    else:
+        return jsonify({"message": "Bad credentials"}), 401
 
 @app.route('/organizations/', methods=['GET'])
 def handle_organizations():

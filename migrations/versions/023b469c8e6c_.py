@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 936589ca747e
+Revision ID: 023b469c8e6c
 Revises: 
-Create Date: 2022-01-27 19:47:02.324042
+Create Date: 2022-01-28 16:11:35.730249
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '936589ca747e'
+revision = '023b469c8e6c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,7 +27,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
-    op.create_table('collaborator',
+    op.create_table('aider',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('phone', sa.String(length=100), nullable=False),
     sa.Column('anonymus', sa.Boolean(), nullable=False),
@@ -38,12 +38,12 @@ def upgrade():
     )
     op.create_table('favorite',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('collaborator_id', sa.Integer(), nullable=False),
+    sa.Column('aider_id', sa.Integer(), nullable=False),
     sa.Column('organization_id', sa.Integer(), nullable=False),
     sa.Column('user_info', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_info'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('collaborator_id'),
+    sa.UniqueConstraint('aider_id'),
     sa.UniqueConstraint('organization_id'),
     sa.UniqueConstraint('user_info')
     )
@@ -66,14 +66,14 @@ def upgrade():
     )
     op.create_table('aid',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('collaborator_id', sa.Integer(), nullable=False),
+    sa.Column('aider_id', sa.Integer(), nullable=False),
     sa.Column('organization_id', sa.Integer(), nullable=False),
     sa.Column('help_type', sa.Enum('MONEY', 'SUPPLIES', 'TRANSPORT', 'PARTICIPATION', name='helptype'), nullable=False),
     sa.Column('help_status', sa.Enum('SEND', 'ONGOING', 'RECEIVED', 'FAIL', name='colaborationstatus'), nullable=False),
-    sa.ForeignKeyConstraint(['collaborator_id'], ['collaborator.id'], ),
+    sa.ForeignKeyConstraint(['aider_id'], ['aider.id'], ),
     sa.ForeignKeyConstraint(['organization_id'], ['organization.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('collaborator_id'),
+    sa.UniqueConstraint('aider_id'),
     sa.UniqueConstraint('organization_id')
     )
     op.create_table('bank_data',
@@ -107,6 +107,6 @@ def downgrade():
     op.drop_table('aid')
     op.drop_table('organization')
     op.drop_table('favorite')
-    op.drop_table('collaborator')
+    op.drop_table('aider')
     op.drop_table('user')
     # ### end Alembic commands ###

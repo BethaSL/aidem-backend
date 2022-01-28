@@ -33,7 +33,7 @@ class User(db.Model): #***Esta clase es el Usuario***
     password = db.Column(db.String(80), unique=False, nullable=False)
     user_type = db.Column(db.Enum(UserType), nullable=False)
     
-    collaborators = db.relationship('Collaborator', backref='user', uselist=True)
+    aiders = db.relationship('Aider', backref='user', uselist=True)
     organizations = db.relationship('Organization', backref='user', uselist=True)
     favorites = db.relationship('Favorite', backref='user', uselist=True)
 
@@ -57,17 +57,17 @@ class User(db.Model): #***Esta clase es el Usuario***
             "user_type": self.user_type.value
         }
 
-class Collaborator(db.Model):
+class Aider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     phone = db.Column(db.String(100), nullable=False)
     anonymus = db.Column(db.Boolean, nullable=False)
     
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
     
-    aids = db.relationship('Aid', backref='collaborator', uselist=True)
+    aids = db.relationship('Aid', backref='aider', uselist=True)
 
     def __repr__(self):
-        return '<Collaborator %r>' % self.collaborator
+        return '<Aider %r>' % self.aider
 
     def serialize(self):
         return {
@@ -146,7 +146,7 @@ class BankData(db.Model):
 
 class Aid(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    collaborator_id = db.Column(db.Integer, db.ForeignKey('collaborator.id'), unique=True, nullable=False)
+    aider_id = db.Column(db.Integer, db.ForeignKey('aider.id'), unique=True, nullable=False)
     organization_id = db.Column(db.Integer, db.ForeignKey('organization.id'), unique=True, nullable=False)
     help_type = db.Column(db.Enum(HelpType), nullable=False)
     help_status = db.Column(db.Enum(ColaborationStatus), nullable=False)
@@ -156,13 +156,13 @@ class Aid(db.Model):
 
     # def serialize(self): 
     #     return {
-    #         "collaborator": self.collaborator,
+    #         "aider": self.aider,
     #         "organization": self.organization
     #     }
 
 class Favorite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    collaborator_id = db.Column(db.Integer, unique=True, nullable=False)
+    aider_id = db.Column(db.Integer, unique=True, nullable=False)
     organization_id = db.Column(db.Integer, unique=True, nullable=False)
     #interacion = db.Column()
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
@@ -172,6 +172,6 @@ class Favorite(db.Model):
 
     # def serialize(self): 
     #     return {
-    #         "collaborator": self.collaborator,
+    #         "aider": self.aider,
     #         "organization": self.organization
     #     }
