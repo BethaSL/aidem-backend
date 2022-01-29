@@ -28,7 +28,7 @@ class Organization_Type(enum.Enum):
 # Classes
 class User(db.Model): #***Esta clase es el Usuario***
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(200), nullable=False)
+    user_name = db.Column(db.String(200), nullable=True)
     email = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     user_type = db.Column(db.Enum(UserType), nullable=False)
