@@ -57,7 +57,9 @@ def handle_signin():
     else:
         return jsonify({"message": "Bad credentials"}), 401
 
-@app.route('/organizations/', methods=['GET'])
+
+#Ruta que trae todas las organizaciones
+@app.route('/organizations', methods=['GET'])
 def handle_organizations():
     all_organizations = Organization.query.all()
     all_serialize = []
