@@ -67,7 +67,7 @@ def handle_organizations():
         all_serialize.append(organization.serialize())
     response_body = {
         'status': 'ok',
-        'organizations': all_serialize
+        'results': all_serialize
     }
     return (response_body) , 200
 
