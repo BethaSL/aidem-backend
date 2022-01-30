@@ -81,7 +81,7 @@ def handle_organization(organization_type):
             children_serialize.append(children_organization.serialize())
         response_body = {
             'status': 'ok',
-            'children_organization': children_serialize
+            'results': children_serialize
         }
     elif organization_type == "elderly":
         elderly_organizations = Organization.query.filter_by(organization_type = organization_type).all()
@@ -90,7 +90,7 @@ def handle_organization(organization_type):
             elderly_serialize.append(elderly_organization.serialize())
         response_body = {
             'status': 'ok',
-            'elderly_organization': elderly_serialize
+            'results': elderly_serialize
         }
     else:
         others_organizations = Organization.query.filter_by(organization_type = organization_type).all()
@@ -99,7 +99,7 @@ def handle_organization(organization_type):
             others_serialize.append(others_organization.serialize())
         response_body = {
             'status': 'ok',
-            'others_organization': others_serialize
+            'results': others_serialize
         } 
     return (response_body) , 200
 
@@ -107,10 +107,6 @@ def handle_organization(organization_type):
 @app.route('/organizaciones/<int:org_id>', methods=['PUT', 'GET'])
 def org(id):
     return 'Organizacion org_name'
-
-@app.route('/nosotros')
-def nosotros():
-    return 'Mision y Vision'
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])
 def colab():
