@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: f3aa090162fa
+Revision ID: aa00b785721e
 Revises: 
-Create Date: 2022-01-29 13:12:56.624643
+Create Date: 2022-01-30 17:09:59.891498
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f3aa090162fa'
+revision = 'aa00b785721e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,7 +30,7 @@ def upgrade():
     op.create_table('aider',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('phone', sa.String(length=100), nullable=False),
-    sa.Column('anonymus', sa.Boolean(), nullable=False),
+    sa.Column('anonymous', sa.Boolean(), nullable=False),
     sa.Column('user_info', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_info'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -55,6 +55,7 @@ def upgrade():
     sa.Column('address', sa.String(length=200), nullable=False),
     sa.Column('person_oncharge', sa.String(length=200), nullable=False),
     sa.Column('status', sa.Boolean(), nullable=False),
+    sa.Column('description', sa.String(length=200), nullable=False),
     sa.Column('user_info', sa.Integer(), nullable=False),
     sa.Column('organization_type', sa.Enum('CHILDREN', 'ELDERLY', 'OTHERS', name='organization_type'), nullable=False),
     sa.ForeignKeyConstraint(['user_info'], ['user.id'], ),

@@ -46,6 +46,24 @@ def handle_login():
 
     return jsonify({"message": "User not created"}), 405
 
+
+@app.route("/orgprofile", methods=["POST"])
+def handle_orgprofile():
+
+    if request.method == "POST":
+        body = request.json
+        orgprofile = Organization.create(body)
+        print(orgprofile)
+        if orgprofile is not None:
+            print(orgprofile)
+            return jsonify(orgprofile.serialize()), 201
+                
+        else:
+            return jsonify({"message": "Please, fill all the fields"}), 401
+
+    return jsonify({"message": "User not created"}), 405
+
+
 @app.route('/signin', methods=['POST'])
 def handle_signin():
     email=request.json.get("email", None)

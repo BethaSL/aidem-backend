@@ -60,7 +60,7 @@ class User(db.Model): #***Esta clase es el Usuario***
 class Aider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     phone = db.Column(db.String(100), nullable=False)
-    anonymus = db.Column(db.Boolean, nullable=False)
+    anonymous = db.Column(db.Boolean, nullable=False)
     
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
     
@@ -83,7 +83,7 @@ class Organization(db.Model):
     address = db.Column(db.String(200), nullable=False)
     person_oncharge = db.Column(db.String(200), unique=True, nullable=False)
     status = db.Column(db.Boolean, nullable=False)
-    
+    description = db.Column(db.String(200), unique=False, nullable=False)
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False) #Relacion con la tabla User
 
     aids = db.relationship('Aid', backref='organization', uselist=True) #Relacion con la tabla Colaboracion
@@ -91,12 +91,24 @@ class Organization(db.Model):
     
     organization_type = db.Column(db.Enum(Organization_Type), nullable=False)
     
+    @classmethod
+    def create(cls, orgprofile):
+        profile = cls(**orgprofile)
 
-    def __repr__(self):
-        return '<Organization %r>' % self.organization
+        try:
+            db.session.add(profile)
+            db.session.commit()
+            return profile
+        except Exception as error:
+            db.session.rollback()
+            print(error)
+            return None
 
     def serialize(self): 
         return {
+          
+            "description": self.description,
+            "organization_type": self.organization_type.value,
             "organization_name": self.organization_name,
             "rif": self.rif,
             "phone": self.phone,
