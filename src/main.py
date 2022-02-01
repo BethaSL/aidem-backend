@@ -10,7 +10,7 @@ from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from models import db, User, Aider, Organization, BankData, Aid, Favorite
+from models import db, User, Aider, Organization, Aid, Favorite
 #from models import Person
 
 app = Flask(__name__)

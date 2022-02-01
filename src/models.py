@@ -84,10 +84,12 @@ class Organization(db.Model):
     person_oncharge = db.Column(db.String(200), unique=True, nullable=False)
     status = db.Column(db.Boolean, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
-    
+    bank_name = db.Column(db.String(100), nullable=False)
+    account_number = db.Column(db.String(20), nullable=False)
+
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False) #Relacion con la tabla User
     aids = db.relationship('Aid', backref='organization', uselist=True) #Relacion con la tabla Colaboracion
-    bank_data = db.relationship('BankData', backref='organization', uselist=True) #Relacion con la tabla DatosBanco
+    #bank_data = db.relationship('BankData', backref='organization', uselist=True) Relacion con la tabla DatosBanco
     
     organization_type = db.Column(db.Enum(Organization_Type), nullable=False)
     
@@ -107,14 +109,16 @@ class Organization(db.Model):
     def serialize(self): 
         return {
           
-            "description": self.description,
-            "organization_type": self.organization_type.value,
-            "organization_name": self.organization_name,
-            "rif": self.rif,
-            "phone": self.phone,
-            "address": self.address,
-            "person_oncharge": self.person_oncharge,
-            "status": self.status
+           "description": self.description,
+           "organization_type": self.organization_type.value,
+           "organization_name": self.organization_name,
+           "rif": self.rif,
+           "phone": self.phone,
+           "address": self.address,
+           "person_oncharge": self.person_oncharge,
+           "status": self.status,
+           "bank_name": self.bank_name,
+           "account_number": self.account_number
         }
 
 class BankData(db.Model):
