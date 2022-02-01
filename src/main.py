@@ -9,7 +9,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Aider, Organization, BankData, Aid, Favorite
 #from models import Person
 
@@ -48,14 +48,16 @@ def handle_login():
 
 
 @app.route("/orgprofile", methods=["POST"])
+@jwt_required()
 def handle_orgprofile():
-
+    user_id = get_jwt_identity()
     if request.method == "POST":
         body = request.json
+        body.update(user_info= user_id)
+        print(body)
         orgprofile = Organization.create(body)
-        print(orgprofile)
+
         if orgprofile is not None:
-            print(orgprofile)
             return jsonify(orgprofile.serialize()), 201
                 
         else:
@@ -64,7 +66,7 @@ def handle_orgprofile():
     return jsonify({"message": "User not created"}), 405
 
 
-@app.route('/signin', methods=['POST'])
+@app.route('/signin', methods=['POST']) # Endpoint de autenticacion, retorna token.
 def handle_signin():
     email=request.json.get("email", None)
     password=request.json.get("password", None)
@@ -122,9 +124,13 @@ def handle_organization(organization_type):
     return (response_body) , 200
 
 
-@app.route('/organizaciones/<int:org_id>', methods=['PUT', 'GET'])
+
+@app.route('/organization', methods=['PUT', 'GET'])
 def org(id):
-    return 'Organizacion org_name'
+    if request.method== "GET":
+        return 'Organizacion org_name'
+
+
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])
 def colab():

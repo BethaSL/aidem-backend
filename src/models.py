@@ -34,7 +34,7 @@ class User(db.Model): #***Esta clase es el Usuario***
     user_type = db.Column(db.Enum(UserType), nullable=False)
     
     aiders = db.relationship('Aider', backref='user', uselist=True)
-    organizations = db.relationship('Organization', backref='user', uselist=True)
+    organizations = db.relationship('Organization', backref='user', uselist=False)
     favorites = db.relationship('Favorite', backref='user', uselist=True)
 
     @classmethod
@@ -84,8 +84,8 @@ class Organization(db.Model):
     person_oncharge = db.Column(db.String(200), unique=True, nullable=False)
     status = db.Column(db.Boolean, nullable=False)
     description = db.Column(db.String(200), unique=False, nullable=False)
+    
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False) #Relacion con la tabla User
-
     aids = db.relationship('Aid', backref='organization', uselist=True) #Relacion con la tabla Colaboracion
     bank_data = db.relationship('BankData', backref='organization', uselist=True) #Relacion con la tabla DatosBanco
     
