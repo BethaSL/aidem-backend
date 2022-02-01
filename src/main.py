@@ -54,7 +54,7 @@ def handle_signin():
     user = User.query.filter_by(email=email, password=password).one_or_none()
     if user is not None:
         token = create_access_token(identity = user.id)
-        return jsonify({"token": token, "user_id": user.id}), 200
+        return jsonify({"token": token, "user_id": user.id, "email": user.email}), 200
     else:
         return jsonify({"message": "Bad credentials"}), 401
 
