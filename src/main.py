@@ -47,25 +47,6 @@ def handle_login():
     return jsonify({"message": "User not created"}), 405
 
 
-@app.route("/orgprofile", methods=["POST"])
-@jwt_required()
-def handle_orgprofile():
-    user_id = get_jwt_identity()
-    if request.method == "POST":
-        body = request.json
-        body.update(user_info= user_id)
-        print(body)
-        orgprofile = Organization.create(body)
-
-        if orgprofile is not None:
-            return jsonify(orgprofile.serialize()), 201
-                
-        else:
-            return jsonify({"message": "Please, fill all the fields"}), 401
-
-    return jsonify({"message": "User not created"}), 405
-
-
 @app.route('/signin', methods=['POST']) # Endpoint de autenticacion, retorna token.
 def handle_signin():
     email=request.json.get("email", None)
@@ -92,6 +73,45 @@ def handle_organizations():
     return (response_body) , 200
 
 
+@app.route("/orgprofile", methods=["POST"])
+@jwt_required()
+def handle_orgprofile():
+    user_id = get_jwt_identity()
+    if request.method == "POST":
+        body = request.json
+        body.update(user_info= user_id)
+        print(body)
+        orgprofile = Organization.create(body)
+
+        if orgprofile is not None:
+            return jsonify(orgprofile.serialize()), 201
+                
+        else:
+            return jsonify({"message": "Please, fill all the fields"}), 401
+
+    return jsonify({"message": "User not created"}), 405
+    
+
+@app.route("/aiderprofile", methods=["POST"])
+@jwt_required()
+def handle_aiderprofile():
+    user_id = get_jwt_identity()
+    if request.method == "POST":
+        body = request.json
+        body.update(user_info= user_id)
+        print(body)
+        aiderprofile = Aider.create(body)
+
+        if aiderprofile is not None:
+            return jsonify(aiderprofile.serialize()), 201
+                
+        else:
+            return jsonify({"message": "Please, fill all the fields"}), 401
+
+    return jsonify({"message": "User not created"}), 405
+
+
+#Endpoint que trae las organizaciones por tipo
 @app.route('/organizations/<string:organization_type>', methods=['GET'])
 def handle_organization(organization_type):
     if organization_type == "children":
@@ -129,7 +149,6 @@ def handle_organization(organization_type):
 def org(id):
     if request.method== "GET":
         return 'Organizacion org_name'
-
 
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])

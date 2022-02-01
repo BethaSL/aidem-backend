@@ -28,7 +28,7 @@ class Organization_Type(enum.Enum):
 # Classes
 class User(db.Model): #***Esta clase es el Usuario***
     id = db.Column(db.Integer, primary_key=True)
-    user_name = db.Column(db.String(200), nullable=True)
+    #user_name = db.Column(db.String(200), nullable=True)
     email = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
     user_type = db.Column(db.Enum(UserType), nullable=False)
@@ -52,27 +52,37 @@ class User(db.Model): #***Esta clase es el Usuario***
 
     def serialize(self):
         return {
-            "user_name": self.user_name,
             "email": self.email,
             "user_type": self.user_type.value
         }
 
 class Aider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    full_name = db.Column(db.String(100), nullable=False)
     phone = db.Column(db.String(100), nullable=False)
-    anonymous = db.Column(db.Boolean, nullable=False)
+    contacted = db.Column(db.Boolean, nullable=False)
     
     user_info = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True, nullable=False)
-    
     aids = db.relationship('Aid', backref='aider', uselist=True)
 
-    def __repr__(self):
-        return '<Aider %r>' % self.aider
+    @classmethod
+    def create(cls, aider_profile):
+        profile = cls(**aider_profile)
+
+        try:
+            db.session.add(profile)
+            db.session.commit()
+            return profile
+        except Exception as error:
+            db.session.rollback()
+            print(error)
+            return None
 
     def serialize(self):
         return {
+            "full_name": self.full_name,
             "phone": self.phone,
-            "anonymus": self.anonymus
+            "contacted": self.contacted
         }
 
 class Organization(db.Model):
