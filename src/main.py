@@ -42,7 +42,7 @@ def handle_login():
         if new_user is not None:
             return jsonify(new_user.serialize()), 201
         else:
-            return jsonify({"message": "Please, fill all the fields"}), 401
+            return jsonify({"message": "Please, Email already in use"}), 401
 
     return jsonify({"message": "User not created"}), 405
 
@@ -145,10 +145,20 @@ def handle_organization(organization_type):
 
 
 
-@app.route('/organization', methods=['PUT', 'GET'])
-def org(id):
-    if request.method== "GET":
-        return 'Organizacion org_name'
+@app.route('/organizations/<int:organization_id>', methods=['GET'])
+def org_by_id(organization_id):
+    one_org=[]
+    one_org.append(Organization.query.filter_by(id=organization_id).first().serialize())
+    response_body={
+        'results': one_org
+    }
+    return (response_body) , 200
+
+
+# @app.route('/deleteaccount', methods= ['DELETE'])
+# def handleDeleteAccount():
+    
+#     return {"message": 'your account was deleted'}
 
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])

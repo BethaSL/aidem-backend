@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 import enum
 
+from sqlalchemy import true
+
 db = SQLAlchemy()
 
 class UserType(enum.Enum):
@@ -56,6 +58,17 @@ class User(db.Model): #***Esta clase es el Usuario***
             "user_type": self.user_type.value
         }
 
+    # def delete(self):
+    #     db.session.delete(Organization.query.filter_by(user_info=self.id))
+
+    #     db.session.delete(self)
+    #     try:
+    #         db.session.commit()
+    #         return True
+    #     except Exception as error:
+    #         db.session.rollback()
+    #         return None
+
 class Aider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
@@ -102,7 +115,7 @@ class Organization(db.Model):
     #bank_data = db.relationship('BankData', backref='organization', uselist=True) Relacion con la tabla DatosBanco
     
     organization_type = db.Column(db.Enum(Organization_Type), nullable=False)
-    
+
     @classmethod
     def create(cls, orgprofile):
         profile = cls(**orgprofile)
@@ -118,7 +131,9 @@ class Organization(db.Model):
 
     def serialize(self): 
         return {
-          
+           "user": User.query.filter_by(id=self.user_info).one_or_none().serialize(),
+           "user_id": self.user_info,
+           "id": self.id,
            "description": self.description,
            "organization_type": self.organization_type.value,
            "organization_name": self.organization_name,
@@ -130,6 +145,7 @@ class Organization(db.Model):
            "bank_name": self.bank_name,
            "account_number": self.account_number
         }
+    
 
 class BankData(db.Model):
     id = db.Column(db.Integer, primary_key=True)
