@@ -42,7 +42,7 @@ def handle_login():
         if new_user is not None:
             return jsonify(new_user.serialize()), 201
         else:
-            return jsonify({"message": "Please, Email already in use"}), 401
+            return jsonify({"message": "Email already in use"}), 401
 
     return jsonify({"message": "User not created"}), 405
 
@@ -54,7 +54,7 @@ def handle_signin():
     user = User.query.filter_by(email=email, password=password).one_or_none()
     if user is not None:
         token = create_access_token(identity = user.id)
-        return jsonify({"token": token, "user_id": user.id, "email": user.email}), 200
+        return jsonify({"token": token, "user_id": user.id, "email": user.email, "user_type": user.user_type.value}), 200
     else:
         return jsonify({"message": "Bad credentials"}), 401
 
@@ -73,7 +73,7 @@ def handle_organizations():
     return (response_body) , 200
 
 
-@app.route("/orgprofile", methods=["POST"])
+@app.route("/orgprofile", methods=["POST", "PUT"])
 @jwt_required()
 def handle_orgprofile():
     user_id = get_jwt_identity()
@@ -89,7 +89,31 @@ def handle_orgprofile():
         else:
             return jsonify({"message": "Please, fill all the fields"}), 401
 
-    return jsonify({"message": "User not created"}), 405
+    return jsonify({"message": "Profile not created"}), 405
+
+@app.route('/orgprofile', methods= ['DELETE'])
+@jwt_required()
+def handleDeleteAccount():
+    user = User.query.filter_by(id=get_jwt_identity()).one_or_none()
+    user_to_delete = user.delete()
+    if user_to_delete:
+        return jsonify({"message": "Your org account was deleted"}) ,204
+    else: 
+        return jsonify({"message": "oh, oh"}), 400
+
+    # if request.method == "PUT":
+    #     body = request.json
+    #     body.update(user_info= user_id)
+    #     print(body)
+    #     orgprofile = Organization.create(body)
+
+    #     if orgprofile is not None:
+    #         return jsonify(orgprofile.serialize()), 201
+                
+    #     else:
+    #         return jsonify({"message": "Please, fill all the fields"}), 401
+
+    # return jsonify({"message": "User not created"}), 405
     
 
 @app.route("/aiderprofile", methods=["POST"])
@@ -108,7 +132,7 @@ def handle_aiderprofile():
         else:
             return jsonify({"message": "Please, fill all the fields"}), 401
 
-    return jsonify({"message": "User not created"}), 405
+    return jsonify({"message": "Profile not created"}), 405
 
 
 #Endpoint que trae las organizaciones por tipo
@@ -154,16 +178,6 @@ def org_by_id(organization_id):
     }
     return (response_body) , 200
 
-
-@app.route('/deleteaccount', methods= ['DELETE'])
-@jwt_required()
-def handleDeleteAccount():
-    user = User.query.filter_by(id=get_jwt_identity()).one_or_none()
-    user_to_delete = user.delete()
-    if user_to_delete:
-        return jsonify({"message": "your account was deleted"}) , 204
-    else: 
-        return jsonify({"message": "oh, oh"}), 400
 
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])

@@ -8,7 +8,6 @@ db = SQLAlchemy()
 class UserType(enum.Enum):
     ORGANIZATION = "organization"
     PARTICULAR = "particular"
-    BUSINESS = "business"
 
 class HelpType(enum.Enum):
     MONEY = "money"
