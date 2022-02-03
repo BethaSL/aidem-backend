@@ -58,16 +58,20 @@ class User(db.Model): #***Esta clase es el Usuario***
             "user_type": self.user_type.value
         }
 
-    # def delete(self):
-    #     db.session.delete(Organization.query.filter_by(user_info=self.id))
-
-    #     db.session.delete(self)
-    #     try:
-    #         db.session.commit()
-    #         return True
-    #     except Exception as error:
-    #         db.session.rollback()
-    #         return None
+    def delete(self):
+        delete_org = Organization.query.filter_by(user_info=self.id).first() 
+        delete_aider = Aider.query.filter_by(user_info=self.id).first()
+        if delete_org != None:
+            db.session.delete(delete_org)
+        if delete_aider != None:
+            db.session.delete(delete_aider)
+        db.session.delete(self)
+        try:
+            db.session.commit()
+            return True
+        except Exception as error:
+            db.session.rollback()
+            return False
 
 class Aider(db.Model):
     id = db.Column(db.Integer, primary_key=True)

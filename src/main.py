@@ -155,10 +155,15 @@ def org_by_id(organization_id):
     return (response_body) , 200
 
 
-# @app.route('/deleteaccount', methods= ['DELETE'])
-# def handleDeleteAccount():
-    
-#     return {"message": 'your account was deleted'}
+@app.route('/deleteaccount', methods= ['DELETE'])
+@jwt_required()
+def handleDeleteAccount():
+    user = User.query.filter_by(id=get_jwt_identity()).one_or_none()
+    user_to_delete = user.delete()
+    if user_to_delete:
+        return jsonify({"message": "your account was deleted"}) , 204
+    else: 
+        return jsonify({"message": "oh, oh"}), 400
 
 
 @app.route('/colaboracion', methods=['PUT', 'GET'])
