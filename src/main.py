@@ -100,6 +100,7 @@ def handle_orgprofile():
     user_id = get_jwt_identity()
     if request.method == "POST":
         body = request.json
+        print(body)
         body.update(user_info= user_id)
         print(body)
         orgprofile = Organization.create(body)
