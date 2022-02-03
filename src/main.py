@@ -52,10 +52,17 @@ def handle_signin():
     email=request.json.get("email", None)
     password=request.json.get("password", None)
     user = User.query.filter_by(email=email, password=password).one_or_none()
-    user.serialize()
+    user_serialize=user.serialize()
+    #user.serialize()
     if user is not None:
         token = create_access_token(identity = user.id)
-        return jsonify({"token": token, "user_id": user.id, "email": user.email, "user_type": user.user_type.value }), 200
+        return jsonify({
+            "token": token,
+            "user_id": user.id,
+            "email": user.email, "user_type": user.user_type.value,
+            "organization_name": user_serialize["organization_name"],
+            "full_name": user_serialize["full_name"]
+            }), 200
     else:
         return jsonify({"message": "Bad credentials"}), 401
 

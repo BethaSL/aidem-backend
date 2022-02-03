@@ -54,15 +54,13 @@ class User(db.Model): #***Esta clase es el Usuario***
 
     def serialize(self):
         name_of_organization = Organization.query.filter_by(user_info=self.id).first()
-        Name_of_organization2 = name_of_organization.serialize()
-        print(Name_of_organization2, '=========================================')
-        
+        name_of_aider = Aider.query.filter_by(user_info=self.id).first()
         return {
-            "email": self.email,
-            "user_type": self.user_type.value,
-            #"organization_name": name_of_organization2["organization_name"]
-        }
-
+        "email": self.email,
+        "user_type": self.user_type.value,
+        "organization_name": name_of_organization.organization_name if name_of_organization else None,
+        "full_name": name_of_aider.full_name if name_of_aider else None
+}
     def delete(self):
         delete_org = Organization.query.filter_by(user_info=self.id).first() 
         delete_aider = Aider.query.filter_by(user_info=self.id).first()
