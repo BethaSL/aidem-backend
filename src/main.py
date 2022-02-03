@@ -52,9 +52,10 @@ def handle_signin():
     email=request.json.get("email", None)
     password=request.json.get("password", None)
     user = User.query.filter_by(email=email, password=password).one_or_none()
+    user.serialize()
     if user is not None:
         token = create_access_token(identity = user.id)
-        return jsonify({"token": token, "user_id": user.id, "email": user.email, "user_type": user.user_type.value}), 200
+        return jsonify({"token": token, "user_id": user.id, "email": user.email, "user_type": user.user_type.value }), 200
     else:
         return jsonify({"message": "Bad credentials"}), 401
 
@@ -104,7 +105,7 @@ def handle_orgprofile():
 
     return jsonify({"message": "Profile not created"}), 405
 
-@app.route('/orgprofile', methods= ['DELETE'])
+@app.route('/delprofile', methods= ['DELETE'])
 @jwt_required()
 def handleDeleteAccount():
     user = User.query.filter_by(id=get_jwt_identity()).one_or_none()

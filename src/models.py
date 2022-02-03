@@ -1,3 +1,4 @@
+from unicodedata import name
 from flask_sqlalchemy import SQLAlchemy
 import enum
 
@@ -52,9 +53,14 @@ class User(db.Model): #***Esta clase es el Usuario***
             return None
 
     def serialize(self):
+        name_of_organization = Organization.query.filter_by(user_info=self.id).first()
+        Name_of_organization2 = name_of_organization.serialize()
+        print(Name_of_organization2, '=========================================')
+        
         return {
             "email": self.email,
-            "user_type": self.user_type.value
+            "user_type": self.user_type.value,
+            #"organization_name": name_of_organization2["organization_name"]
         }
 
     def delete(self):
