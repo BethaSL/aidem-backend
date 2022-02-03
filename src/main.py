@@ -72,6 +72,19 @@ def handle_organizations():
     }
     return (response_body) , 200
 
+#Ruta que trae todos los Aiders
+@app.route('/aiders', methods=['GET'])
+def handle_aiders():
+    all_aiders = Aider.query.all()
+    all_serialize = []
+    for aider in all_aiders:
+        all_serialize.append(aider.serialize())
+    response_body = {
+        'status': 'ok',
+        'results': all_serialize
+    }
+    return (response_body) , 200
+
 
 @app.route("/orgprofile", methods=["POST", "PUT"])
 @jwt_required()
