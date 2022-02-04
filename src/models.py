@@ -135,6 +135,17 @@ class Organization(db.Model):
             db.session.rollback()
             print(error)
             return None
+   
+    
+    def put(self, organization):
+        for key,value in organization.items():
+            setattr(self,key,value)
+        try:
+            db.session.commit()
+            return True
+        except Exception as error:
+            db.session.rollback()
+            return False
 
     def serialize(self): 
         return {

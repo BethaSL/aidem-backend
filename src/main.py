@@ -100,9 +100,7 @@ def handle_orgprofile():
     user_id = get_jwt_identity()
     if request.method == "POST":
         body = request.json
-        print(body)
         body.update(user_info= user_id)
-        print(body)
         orgprofile = Organization.create(body)
 
         if orgprofile is not None:
@@ -111,7 +109,16 @@ def handle_orgprofile():
         else:
             return jsonify({"message": "Please, fill all the fields"}), 401
 
-    return jsonify({"message": "Profile not created"}), 405
+    if request.method == "PUT":
+        old_organization= Organization.query.filter_by(user_info=user_id).one_or_none()
+        new_organization= old_organization.put(request.json)
+        if new_organization:
+           return jsonify(old_organization.serialize()), 200
+        else:
+            return jsonify("try again"), 500  
+
+      
+
 
 @app.route('/delprofile', methods= ['DELETE'])
 @jwt_required()
