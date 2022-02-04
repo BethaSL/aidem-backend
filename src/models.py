@@ -60,7 +60,8 @@ class User(db.Model): #***Esta clase es el Usuario***
         "user_type": self.user_type.value,
         "organization_name": name_of_organization.organization_name if name_of_organization else None,
         "full_name": name_of_aider.full_name if name_of_aider else None
-}
+        }
+    
     def delete(self):
         delete_org = Organization.query.filter_by(user_info=self.id).first() 
         delete_aider = Aider.query.filter_by(user_info=self.id).first()
@@ -98,8 +99,21 @@ class Aider(db.Model):
             print(error)
             return None
 
+    def put(self, aider):
+        for key,value in aider.items():
+            setattr(self,key,value)
+        try:
+            db.session.commit()
+            return True
+        except Exception as error:
+            db.session.rollback()
+            return False
+
     def serialize(self):
         return {
+            "user": User.query.filter_by(id=self.user_info).one_or_none().serialize(),
+            "user_id": self.user_info,
+            "id": self.id,
             "full_name": self.full_name,
             "phone": self.phone,
             "contacted": self.contacted
@@ -136,7 +150,6 @@ class Organization(db.Model):
             print(error)
             return None
    
-    
     def put(self, organization):
         for key,value in organization.items():
             setattr(self,key,value)

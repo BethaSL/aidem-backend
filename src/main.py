@@ -145,7 +145,7 @@ def handleDeleteAccount():
     # return jsonify({"message": "User not created"}), 405
     
 
-@app.route("/aiderprofile", methods=["POST"])
+@app.route("/aiderprofile", methods=["POST", "PUT"])
 @jwt_required()
 def handle_aiderprofile():
     user_id = get_jwt_identity()
@@ -161,7 +161,13 @@ def handle_aiderprofile():
         else:
             return jsonify({"message": "Please, fill all the fields"}), 401
 
-    return jsonify({"message": "Profile not created"}), 405
+    if request.method == "PUT":
+        old_aider= Aider.query.filter_by(user_info=user_id).one_or_none()
+        new_aider= old_aider.put(request.json)
+        if new_aider:
+            return jsonify(old_aider.serialize()), 200
+        else:
+             return jsonify("try again"), 500  
 
 
 #Endpoint que trae las organizaciones por tipo
